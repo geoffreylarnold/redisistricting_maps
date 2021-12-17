@@ -2,7 +2,11 @@
 title: "2021 PA Redistricting Maps"
 author: "Geoffrey Arnold"
 date: "12/17/2021"
-output: html_document
+output:
+  html_document:
+    toc: true
+    theme: flatly
+    toc_depth: 2
 ---
 
 <!-- Wider contents --> 
@@ -15,7 +19,7 @@ output: html_document
 </style>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, out.width="100%")
 
 require(sf)
 require(leaflet)
@@ -35,11 +39,23 @@ senate_labs <- senate %>% st_transform() %>% st_centroid()
 senate_curr <- read_sf("https://data.pa.gov/api/geospatial/vdjs-93zj?method=export&format=GeoJSON")
 
 senate_curr_labs <- senate_curr %>% st_transform() %>% st_centroid()
+
+pal <- colorFactor(palette = c("blue", "orange"), domain = c("Current", "2021 Proposal"))
 ```
 
-## House Preliminary Map
+# Purpose
 
-```{r house, fig.width=12}
+I was very tired of staring at PDF's and screenshots so I made these to help with comparing the 2011 and preliminary PA Congressional and Senate Districts.
+
+[GitHub Rep](https://github.com/geoffreylarnold/redisistricting_maps)
+
+## Instructions
+
+Leaflet will place whichever layer you most recently added to a Map on-top. For example: If you would like the "Current" House Districts to appear on-top, simply un-check the layer from the box on the top right and then select it again.
+
+# House Preliminary Map
+
+```{r house}
 leaflet() %>%
   addTiles() %>%
   addPolygons(data = house_curr,
@@ -62,13 +78,17 @@ leaflet() %>%
                                                style = list("color" = "orange",
                                                             "font-size" = "12px")),
               group = "2021 Proposal") %>%
-  addLayersControl(overlayGroups = c("Current", "2021 Proposal"),
-                  options = layersControlOptions(collapsed = FALSE))
+  addLayersControl(overlayGroups = c("2021 Proposal", "Current"),
+                  options = layersControlOptions(collapsed = FALSE)) %>%
+  addLegend(title = "Layers",
+            pal = pal,
+            values = c("Current", "2021 Proposal"),
+            position = "bottomright")
 ```
 
-## Senate Preliminary Map
+# Senate Preliminary Map
 
-```{r senate, fig.width=12}
+```{r senate}
 leaflet() %>%
   addTiles() %>%
   addPolygons(data = senate_curr,
@@ -91,6 +111,10 @@ leaflet() %>%
                                                style = list("color" = "orange",
                                                             "font-size" = "12px")),
               group = "2021 Proposal") %>%
-  addLayersControl(overlayGroups = c("Current", "2021 Proposal"),
-                  options = layersControlOptions(collapsed = FALSE))
+  addLayersControl(overlayGroups = c("2021 Proposal", "Current"),
+                  options = layersControlOptions(collapsed = FALSE)) %>%
+  addLegend(title = "Layers",
+            pal = pal,
+            values = c("Current", "2021 Proposal"),
+            position = "bottomright")
 ```
