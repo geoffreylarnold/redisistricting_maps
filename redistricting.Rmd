@@ -1,0 +1,96 @@
+---
+title: "2021 PA Redistricting Maps"
+author: "Geoffrey Arnold"
+date: "12/17/2021"
+output: html_document
+---
+
+<!-- Wider contents --> 
+<style type="text/css">
+.main-container {
+  max-width: 1250px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+require(sf)
+require(leaflet)
+
+house <- read_sf("https://www.redistricting.state.pa.us/Resources/GISData/Districts/Legislative/House/2021-Preliminary/JSON/LRC-H-Preliminary.json")
+
+house_labs <- house %>% st_transform() %>% st_centroid()
+
+house_curr <- read_sf("https://data.pa.gov/api/geospatial/in5u-czi3?method=export&format=GeoJSON")
+
+house_curr_labs <- house_curr %>% st_transform() %>% st_centroid()
+
+senate <- read_sf("https://www.redistricting.state.pa.us/Resources/GISData/Districts/Legislative/Senate/2021-Preliminary/JSON/LRC-S-Preliminary.json")
+
+senate_labs <- senate %>% st_transform() %>% st_centroid()
+
+senate_curr <- read_sf("https://data.pa.gov/api/geospatial/vdjs-93zj?method=export&format=GeoJSON")
+
+senate_curr_labs <- senate_curr %>% st_transform() %>% st_centroid()
+```
+
+## House Preliminary Map
+
+```{r house, fig.width=12}
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(data = house_curr,
+              color = "blue",
+              group = "Current") %>%
+  addLabelOnlyMarkers(data = house_curr_labs,
+                   label = ~leg_distri,
+                   labelOptions = labelOptions(noHide = T, 
+                                               textOnly = TRUE, 
+                                               style = list("color" = "blue",
+                                                            "font-size" = "12px")),
+              group = "Current") %>%
+  addPolygons(data = house,
+              color = "orange",
+              group = "2021 Proposal") %>%
+  addLabelOnlyMarkers(data = house_labs,
+                   label = ~District,
+                   labelOptions = labelOptions(noHide = T, 
+                                               textOnly = TRUE, 
+                                               style = list("color" = "orange",
+                                                            "font-size" = "12px")),
+              group = "2021 Proposal") %>%
+  addLayersControl(overlayGroups = c("Current", "2021 Proposal"),
+                  options = layersControlOptions(collapsed = FALSE))
+```
+
+## Senate Preliminary Map
+
+```{r senate, fig.width=12}
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(data = senate_curr,
+              color = "blue",
+              group = "Current") %>%
+  addLabelOnlyMarkers(data = senate_curr_labs,
+                   label = ~name,
+                   labelOptions = labelOptions(noHide = T, 
+                                               textOnly = TRUE, 
+                                               style = list("color" = "blue",
+                                                            "font-size" = "12px")),
+              group = "Current") %>%
+  addPolygons(data = senate,
+              color = "orange",
+              group = "2021 Proposal") %>%
+  addLabelOnlyMarkers(data = senate_labs,
+                   label = ~District,
+                   labelOptions = labelOptions(noHide = T, 
+                                               textOnly = TRUE, 
+                                               style = list("color" = "orange",
+                                                            "font-size" = "12px")),
+              group = "2021 Proposal") %>%
+  addLayersControl(overlayGroups = c("Current", "2021 Proposal"),
+                  options = layersControlOptions(collapsed = FALSE))
+```
